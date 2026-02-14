@@ -99,3 +99,24 @@ Room specs go in DESIGN.md or separate room/*.md files as complexity grows.
 - Game Boy aesthetic: 4 colors, pixel-perfect, no anti-aliasing
 - Interactions: brief, personality not resume ("The laptop is warm. It's been running for 13 years.")
 - Easter eggs welcome, but hidden
+
+## Working Model
+
+**Heartbeats:** Verification only
+- Does it compile?
+- Any runtime errors?
+- What's the next task?
+- Any blockers?
+
+**Dedicated sessions:** Actual implementation
+- Pick task from DESIGN.md build order
+- Implement with sub-agents if complex
+- Verify (compile, run, math checks)
+- Commit progress
+
+**Checkpoints:** Human review at milestones
+- Room complete → Kashish looks → feedback → continue
+- Aesthetic decisions need human eyes
+- Ping if stuck or need a call
+
+**This is Gary's project to own.** Kashish gives feedback, not instructions.
