@@ -2,7 +2,7 @@
 # Builds C + SDL2 to WebAssembly via Emscripten
 
 CC = emcc
-SRC = src/main.c
+SOURCES = src/main.c src/game.c src/render.c src/room.c $(wildcard src/rooms/*.c)
 OUT = build/index.html
 
 # Emscripten flags
@@ -12,13 +12,13 @@ LDFLAGS = -s USE_SDL=2 \
           -s EXPORTED_RUNTIME_METHODS='["ccall","cwrap"]' \
           --shell-file shell.html
 
-.PHONY: all clean serve
+.PHONY: all clean serve native
 
 all: $(OUT)
 
-$(OUT): $(SRC) shell.html
+$(OUT): $(SOURCES) shell.html
 	@mkdir -p build
-	$(CC) $(CFLAGS) $(SRC) -o $(OUT) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(SOURCES) -o $(OUT) $(LDFLAGS)
 	@cp CNAME build/CNAME 2>/dev/null || true
 	@echo "Build complete: $(OUT)"
 
@@ -28,6 +28,8 @@ clean:
 serve:
 	cd build && python3 -m http.server 8080
 
-# Native build for testing (optional)
+# Native build for testing
 native:
-	gcc -O2 -Wall -Wextra $(SRC) -o build/portfolio-native -lSDL2
+	@mkdir -p build
+	gcc -O2 -Wall -Wextra $(SOURCES) -o build/portfolio-native -lSDL2
+	@echo "Native build: build/portfolio-native"
