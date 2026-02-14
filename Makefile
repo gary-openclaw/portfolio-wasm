@@ -19,6 +19,7 @@ all: $(OUT)
 $(OUT): $(SRC) shell.html
 	@mkdir -p build
 	$(CC) $(CFLAGS) $(SRC) -o $(OUT) $(LDFLAGS)
+	@cp CNAME build/CNAME 2>/dev/null || true
 	@echo "Build complete: $(OUT)"
 
 clean:
