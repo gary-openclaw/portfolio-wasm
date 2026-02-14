@@ -54,7 +54,7 @@ A tiny explorable world. Walk around, examine things. Personality revealed throu
 
 ## Build Order
 
-1. [x] Canvas resize to 400×640
+1. [x] Canvas resize to 400×640 ✓
 2. [ ] Tile map data structure
 3. [ ] Single room rendering (Home)
 4. [ ] Character sprite + movement
