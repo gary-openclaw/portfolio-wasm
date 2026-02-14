@@ -13,9 +13,14 @@
 #include <emscripten.h>
 #endif
 
-// Window dimensions
-#define WINDOW_WIDTH 800
-#define WINDOW_HEIGHT 600
+// Window dimensions (portrait, mobile-friendly)
+#define WINDOW_WIDTH 400
+#define WINDOW_HEIGHT 640
+
+// Tile system
+#define TILE_SIZE 8
+#define GRID_WIDTH (WINDOW_WIDTH / TILE_SIZE)   // 50 tiles
+#define GRID_HEIGHT (WINDOW_HEIGHT / TILE_SIZE) // 80 tiles
 
 // Colors (Game Boy inspired)
 #define COLOR_BG_R 0x0F
