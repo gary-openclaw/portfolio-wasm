@@ -1,0 +1,14 @@
+# Build output
+build/
+
+# Emscripten cache (if local)
+.emscripten_cache/
+
+# OS
+.DS_Store
+
+# Editor
+*.swp
+*.swo
+.vscode/
+.idea/

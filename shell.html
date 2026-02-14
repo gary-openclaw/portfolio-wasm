@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kashish Grover</title>
+    <meta name="description" content="Software Engineer. Platform, DevEx, AI-assisted engineering.">
+    <meta property="og:title" content="Kashish Grover">
+    <meta property="og:description" content="Portfolio rendered in C + WebAssembly">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://wasm.kashishgrover.com">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #0f380f;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: monospace;
+        }
+        
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        #canvas {
+            border: 4px solid #9bbc0f;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        
+        #loading {
+            color: #9bbc0f;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        #loading.hidden {
+            display: none;
+        }
+        
+        /* Scanline effect */
+        #scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            z-index: 1000;
+        }
+        
+        /* Fallback for no-WASM */
+        .no-wasm {
+            color: #9bbc0f;
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .no-wasm a {
+            color: #9bbc0f;
+        }
+    </style>
+</head>
+<body>
+    <div id="scanlines"></div>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <div id="loading">Loading WASM...</div>
+    </div>
+    
+    <noscript>
+        <div class="no-wasm">
+            <h1>Kashish Grover</h1>
+            <p>This portfolio requires JavaScript and WebAssembly.</p>
+            <p><a href="https://kashishgrover.com">Visit the main site</a></p>
+        </div>
+    </noscript>
+
+    <script>
+        // Check WASM support
+        if (typeof WebAssembly !== 'object') {
+            document.body.innerHTML = `
+                <div class="no-wasm">
+                    <h1>Kashish Grover</h1>
+                    <p>Your browser doesn't support WebAssembly.</p>
+                    <p><a href="https://kashishgrover.com">Visit the main site</a></p>
+                </div>
+            `;
+        }
+        
+        var Module = {
+            canvas: document.getElementById('canvas'),
+            onRuntimeInitialized: function() {
+                document.getElementById('loading').classList.add('hidden');
+                console.log('WASM initialized');
+            },
+            print: function(text) {
+                console.log(text);
+            },
+            printErr: function(text) {
+                console.error(text);
+            }
+        };
+    </script>
+    {{{ SCRIPT }}}
+</body>
+</html>
