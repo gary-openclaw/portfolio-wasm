@@ -27,9 +27,15 @@ typedef struct { uint8_t r, g, b; } Color;
 typedef enum {
     TILE_FLOOR = 0,     // Walkable
     TILE_WALL,          // Solid, blocks movement
-    TILE_OBJECT,        // Interactive object (solid)
     TILE_DOOR,          // Room transition
+    TILE_COUCH,         // Couch furniture
+    TILE_DESK,          // Desk furniture
+    TILE_LAPTOP,        // Laptop on desk
 } TileType;
+
+// Variant encodes position within multi-tile object:
+// 0=top-left, 1=top-right, 2=bottom-left, 3=bottom-right
+// For wider objects: 4=top-mid, 5=bottom-mid, etc.
 
 typedef struct {
     TileType type;
