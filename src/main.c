@@ -7,9 +7,7 @@
 
 #include <SDL2/SDL.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
-#include <math.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -19,35 +17,14 @@
 #define WINDOW_WIDTH 800
 #define WINDOW_HEIGHT 600
 
-// Colors (Genecyst / Bloodlust Software inspired)
-// Late 90s DOS emulator aesthetic - blood dripping menus
-#define COLOR_BG_R 0x00
-#define COLOR_BG_G 0x00
-#define COLOR_BG_B 0x00  // Pure black
+// Colors (Game Boy inspired)
+#define COLOR_BG_R 0x0F
+#define COLOR_BG_G 0x38
+#define COLOR_BG_B 0x0F
 
-#define COLOR_BLOOD_DARK_R 0x8B
-#define COLOR_BLOOD_DARK_G 0x00
-#define COLOR_BLOOD_DARK_B 0x00
-
-#define COLOR_BLOOD_R 0xCC
-#define COLOR_BLOOD_G 0x00
-#define COLOR_BLOOD_B 0x00
-
-#define COLOR_BLOOD_BRIGHT_R 0xFF
-#define COLOR_BLOOD_BRIGHT_G 0x22
-#define COLOR_BLOOD_BRIGHT_B 0x22
-
-#define COLOR_GRAY_DARK_R 0x33
-#define COLOR_GRAY_DARK_G 0x33
-#define COLOR_GRAY_DARK_B 0x33
-
-#define COLOR_GRAY_R 0x88
-#define COLOR_GRAY_G 0x88
-#define COLOR_GRAY_B 0x88
-
-#define COLOR_WHITE_R 0xCC
-#define COLOR_WHITE_G 0xCC
-#define COLOR_WHITE_B 0xCC
+#define COLOR_FG_R 0x9B
+#define COLOR_FG_G 0xBC
+#define COLOR_FG_B 0x0F
 
 typedef struct {
     SDL_Window *window;
@@ -58,119 +35,29 @@ typedef struct {
 
 static AppState app = {0};
 
-// Blood drip state - positions and speeds
-#define NUM_DRIPS 12
-static int drip_x[NUM_DRIPS];
-static int drip_y[NUM_DRIPS];
-static int drip_speed[NUM_DRIPS];
-static int drip_length[NUM_DRIPS];
-static bool drips_initialized = false;
-
-void init_drips(void) {
-    for (int i = 0; i < NUM_DRIPS; i++) {
-        drip_x[i] = 30 + (i * (WINDOW_WIDTH - 60) / NUM_DRIPS) + (rand() % 20 - 10);
-        drip_y[i] = 24 + (rand() % 40);  // Start below menu bar
-        drip_speed[i] = 1 + (rand() % 3);
-        drip_length[i] = 20 + (rand() % 60);
-    }
-    drips_initialized = true;
-}
-
 void render_frame(void) {
-    if (!drips_initialized) init_drips();
-    
-    // Pure black background
+    // Clear with Game Boy green
     SDL_SetRenderDrawColor(app.renderer, COLOR_BG_R, COLOR_BG_G, COLOR_BG_B, 255);
     SDL_RenderClear(app.renderer);
     
-    // DOS-style menu bar at top (gray)
-    SDL_SetRenderDrawColor(app.renderer, COLOR_GRAY_DARK_R, COLOR_GRAY_DARK_G, COLOR_GRAY_DARK_B, 255);
-    SDL_Rect menubar = {0, 0, WINDOW_WIDTH, 24};
-    SDL_RenderFillRect(app.renderer, &menubar);
+    // Draw a simple rectangle (placeholder)
+    SDL_SetRenderDrawColor(app.renderer, COLOR_FG_R, COLOR_FG_G, COLOR_FG_B, 255);
     
-    // Menu bar highlight
-    SDL_SetRenderDrawColor(app.renderer, COLOR_GRAY_R, COLOR_GRAY_R, COLOR_GRAY_R, 255);
-    SDL_RenderDrawLine(app.renderer, 0, 0, WINDOW_WIDTH, 0);
-    SDL_RenderDrawLine(app.renderer, 0, 0, 0, 23);
+    // Pulsing rectangle
+    int pulse = (app.frame / 30) % 2;
+    int size = 100 + (pulse * 20);
+    SDL_Rect rect = {
+        (WINDOW_WIDTH - size) / 2,
+        (WINDOW_HEIGHT - size) / 2,
+        size,
+        size
+    };
+    SDL_RenderFillRect(app.renderer, &rect);
     
-    // Blood drips from menu bar
-    for (int i = 0; i < NUM_DRIPS; i++) {
-        // Draw the drip (vertical line with gradient)
-        for (int dy = 0; dy < drip_length[i]; dy++) {
-            int y = drip_y[i] + dy;
-            if (y >= 24 && y < WINDOW_HEIGHT) {
-                // Gradient from bright to dark as it goes down
-                float t = (float)dy / drip_length[i];
-                int r = (int)(COLOR_BLOOD_BRIGHT_R * (1 - t) + COLOR_BLOOD_DARK_R * t);
-                int g = (int)(COLOR_BLOOD_BRIGHT_G * (1 - t) + COLOR_BLOOD_DARK_G * t);
-                int b = (int)(COLOR_BLOOD_BRIGHT_B * (1 - t) + COLOR_BLOOD_DARK_B * t);
-                SDL_SetRenderDrawColor(app.renderer, r, g, b, 255);
-                
-                // Drip is wider at top, narrower at bottom
-                int width = (dy < 5) ? 3 : (dy < 15) ? 2 : 1;
-                for (int dx = -width/2; dx <= width/2; dx++) {
-                    SDL_RenderDrawPoint(app.renderer, drip_x[i] + dx, y);
-                }
-            }
-        }
-        
-        // Blood pool/bulge at the bottom of drip
-        int pool_y = drip_y[i] + drip_length[i];
-        if (pool_y < WINDOW_HEIGHT - 10) {
-            SDL_SetRenderDrawColor(app.renderer, COLOR_BLOOD_DARK_R, COLOR_BLOOD_DARK_G, COLOR_BLOOD_DARK_B, 255);
-            for (int px = -2; px <= 2; px++) {
-                for (int py = 0; py <= 3; py++) {
-                    if (abs(px) + py <= 3) {
-                        SDL_RenderDrawPoint(app.renderer, drip_x[i] + px, pool_y + py);
-                    }
-                }
-            }
-        }
-        
-        // Animate drips
-        if (app.frame % 3 == 0) {
-            drip_y[i] += drip_speed[i];
-            if (drip_y[i] > WINDOW_HEIGHT) {
-                // Reset drip
-                drip_y[i] = 24;
-                drip_speed[i] = 1 + (rand() % 3);
-                drip_length[i] = 20 + (rand() % 60);
-            }
-        }
-    }
-    
-    // Blood stain on menu bar (source of drips)
-    SDL_SetRenderDrawColor(app.renderer, COLOR_BLOOD_R, COLOR_BLOOD_G, COLOR_BLOOD_B, 255);
-    for (int x = 20; x < WINDOW_WIDTH - 20; x += 3) {
-        int height = 3 + (int)(2 * sin(x * 0.1));
-        for (int y = 22; y < 24 + height; y++) {
-            SDL_RenderDrawPoint(app.renderer, x, y);
-            SDL_RenderDrawPoint(app.renderer, x+1, y);
-        }
-    }
-    
-    // Center content area - placeholder text zone
-    int cx = WINDOW_WIDTH / 2;
-    int cy = WINDOW_HEIGHT / 2;
-    
-    // Simple pulsing rectangle (placeholder for content)
-    int pulse = (int)(5.0 * sin(app.frame * 0.03));
-    SDL_SetRenderDrawColor(app.renderer, COLOR_GRAY_DARK_R, COLOR_GRAY_DARK_G, COLOR_GRAY_DARK_B, 255);
-    SDL_Rect content_box = {cx - 150 - pulse, cy - 80 - pulse, 300 + pulse*2, 160 + pulse*2};
-    SDL_RenderDrawRect(app.renderer, &content_box);
-    
-    // Red accent lines
-    SDL_SetRenderDrawColor(app.renderer, COLOR_BLOOD_R, COLOR_BLOOD_G, COLOR_BLOOD_B, 255);
-    SDL_RenderDrawLine(app.renderer, cx - 100, cy - 40, cx + 100, cy - 40);
-    SDL_RenderDrawLine(app.renderer, cx - 80, cy + 40, cx + 80, cy + 40);
-    
-    // Corner accents (Bloodlust style)
-    SDL_SetRenderDrawColor(app.renderer, COLOR_BLOOD_DARK_R, COLOR_BLOOD_DARK_G, COLOR_BLOOD_DARK_B, 255);
-    // Bottom corners
-    for (int i = 0; i < 20; i++) {
-        SDL_RenderDrawPoint(app.renderer, 10 + i, WINDOW_HEIGHT - 30 + (i/3));
-        SDL_RenderDrawPoint(app.renderer, WINDOW_WIDTH - 10 - i, WINDOW_HEIGHT - 30 + (i/3));
-    }
+    // Border
+    SDL_SetRenderDrawColor(app.renderer, COLOR_FG_R, COLOR_FG_G, COLOR_FG_B, 255);
+    SDL_Rect border = {10, 10, WINDOW_WIDTH - 20, WINDOW_HEIGHT - 20};
+    SDL_RenderDrawRect(app.renderer, &border);
     
     SDL_RenderPresent(app.renderer);
     app.frame++;
