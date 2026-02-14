@@ -31,6 +31,17 @@ typedef enum {
     TILE_COUCH,         // Couch furniture
     TILE_DESK,          // Desk furniture
     TILE_LAPTOP,        // Laptop on desk
+    TILE_BOOKSHELF,     // Bookshelf furniture
+    TILE_RUG,           // Rug (non-solid)
+    TILE_TV,            // Television
+    TILE_COFFEE_TABLE,  // Coffee table
+    TILE_COUNTER,       // Kitchen counter
+    TILE_FRIDGE,        // Refrigerator
+    TILE_CATBED,        // Cat bed (non-solid)
+    TILE_PLANT,         // Potted plant
+    TILE_BED,           // Bed furniture
+    TILE_NIGHTSTAND,    // Nightstand with lamp
+    TILE_INTERIOR_WALL, // Interior divider wall
 } TileType;
 
 // Variant encodes position within multi-tile object:
